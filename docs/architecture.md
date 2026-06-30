@@ -59,3 +59,4 @@ This only covers lineage from dbt sources downward. Lineage from the scraper thr
 - [ ] What orchestrator (if any) coordinates scraper → Spark → dbt?
 - [ ] How are credentials/secrets managed across the three domains?
 - [ ] What does the website/API layer actually consume?
+
