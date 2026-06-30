@@ -1,8 +1,15 @@
 # Dependencies
 node_modules/
+.venv/
+**/.venv/
+__pycache__/
+*.py[cod]
 
 # Environment variables
 .env
+.env.*
+!.env.example
+!**/.env.example
 .env.local
 .env.*.local
 
@@ -29,3 +36,15 @@ target/
 dbt_packages/
 logs/
 dbt_internal_packages/
+
+# Runtime data and orchestration state
+airflow/logs/
+airflow/plugins/
+airflow/.airflowignore
+output/
+checkpoints/
+spark/Data/parquet_cache/
+spark/Data/registry_maps/
+spark/Data/llm_cache/
+spark/Data/prompt_cache/
+*.zip

@@ -34,6 +34,12 @@ def main():
         default=False,
         help="Skip LLM imputation entirely (use when all API keys are exhausted).",
     )
+    parser.add_argument(
+        "--idle-timeout-minutes",
+        type=int,
+        default=10,
+        help="Stop streaming after this many fully idle minutes.",
+    )
     args = parser.parse_args()
     mode = args.mode
 
@@ -64,7 +70,7 @@ def main():
             logger.info("--skip-llm flag active: LLM imputation will be bypassed in streaming")
             
         pipeline = StreamingPipeline(spark, skip_llm=args.skip_llm)
-        pipeline.run()
+        pipeline.run(idle_timeout_minutes=args.idle_timeout_minutes)
 
     else:
         logger.error("Unknown mode: %s. Use 'batch' or 'streaming'.", mode)

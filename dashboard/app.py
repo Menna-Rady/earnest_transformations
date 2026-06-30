@@ -5,6 +5,7 @@ Egyptian market price intelligence dashboard.
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from typing import Callable
 
@@ -32,13 +33,13 @@ ORANGE = "#D98A28"
 PALETTE = [PRIMARY, SECONDARY, ACCENT, "#A35D1D", "#D4A853", "#5AA469", "#B94747"]
 
 SNOWFLAKE_CONFIG = {
-    "account": "YRTWLKS-JN90249",
-    "user": "ALAA.ALI.SWE",
-    "password": "Alaa.131220041",
-    "warehouse": "DEPI_WH",
-    "database": "New_N",
-    "schema": "NEW_DEV",
-    "role": "SYSADMIN",
+    "account": os.getenv("SNOWFLAKE_ACCOUNT", ""),
+    "user": os.getenv("SNOWFLAKE_USER", ""),
+    "password": os.getenv("SNOWFLAKE_PASSWORD", ""),
+    "warehouse": os.getenv("SNOWFLAKE_WAREHOUSE", ""),
+    "database": os.getenv("SNOWFLAKE_DATABASE", ""),
+    "schema": os.getenv("SNOWFLAKE_SCHEMA", ""),
+    "role": os.getenv("SNOWFLAKE_ROLE", "SYSADMIN"),
 }
 
 
@@ -61,6 +62,11 @@ def parse_bool(value: object) -> bool:
 
 def load_data() -> DataBundle:
     print("Loading all dashboard data from Snowflake...")
+    missing = [name for name, value in SNOWFLAKE_CONFIG.items() if not value]
+    if missing:
+        raise RuntimeError(
+            "Missing Snowflake dashboard settings: " + ", ".join(missing)
+        )
     sql = """
         SELECT
             f.fact_id,

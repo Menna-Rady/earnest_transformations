@@ -15,13 +15,13 @@ SELECT
     product_availability,
     product_count,
     product_weight,
-    product_measuring_unit,
+    product_measuring_unit
     
 FROM 
     {{ source('raw_data', 'STG_ALL_SELLERS_PRODUCTS') }}
 
 
 QUALIFY ROW_NUMBER() OVER(
-    PARTITION BY product_url, date_id, time_id 
-    ORDER BY date_id DESC
+    PARTITION BY product_url, date_id, time_id, product_seller
+    ORDER BY product_seller
 ) = 1

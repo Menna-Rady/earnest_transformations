@@ -2,10 +2,10 @@ WITH source_count AS (
     SELECT COUNT(*) AS cnt
     FROM (
         SELECT
-            product_url, date_id, time_id
+            product_url, product_seller, date_id, time_id
         FROM {{ source('raw_data', 'STG_ALL_SELLERS_PRODUCTS') }}
         QUALIFY ROW_NUMBER() OVER(
-            PARTITION BY product_url, date_id, time_id
+            PARTITION BY product_url, product_seller, date_id, time_id
             ORDER BY date_id DESC
         ) = 1
     )

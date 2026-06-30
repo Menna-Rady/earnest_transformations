@@ -1,0 +1,2 @@
+fastavro>=1.9,<2
+pytest>=8,<9

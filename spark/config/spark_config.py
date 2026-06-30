@@ -20,10 +20,23 @@ def spark_conf() -> SparkConf:
         "org.apache.spark:spark-sql-kafka-0-10_2.13:4.0.0",
         "org.apache.spark:spark-avro_2.13:4.0.0",
         "org.apache.hadoop:hadoop-azure:3.3.6",
+        "org.apache.iceberg:iceberg-spark-runtime-4.0_2.13:1.10.0",
     ]
     conf.set("spark.jars.packages", ",".join(packages))
 
     from config.dotenv_config import config
+    conf.set(
+        f"spark.sql.catalog.{config.LAKEHOUSE_CATALOG}",
+        "org.apache.iceberg.spark.SparkCatalog",
+    )
+    conf.set(
+        f"spark.sql.catalog.{config.LAKEHOUSE_CATALOG}.type",
+        "hadoop",
+    )
+    conf.set(
+        f"spark.sql.catalog.{config.LAKEHOUSE_CATALOG}.warehouse",
+        config.LAKEHOUSE_WAREHOUSE,
+    )
     if config.AZURE_STORAGE_ACCOUNT_NAME and config.AZURE_STORAGE_ACCOUNT_KEY:
         conf.set(f"fs.azure.account.key.{config.AZURE_STORAGE_ACCOUNT_NAME}.dfs.core.windows.net", config.AZURE_STORAGE_ACCOUNT_KEY)
         conf.set(f"fs.azure.account.key.{config.AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net", config.AZURE_STORAGE_ACCOUNT_KEY)

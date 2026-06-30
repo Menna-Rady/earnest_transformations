@@ -2,8 +2,8 @@ version: 2
 
 sources:
   - name: raw_data
-    schema: PUBLIC
-    database: DEPI_DB 
+    schema: "{{ env_var('SNOWFLAKE_SOURCE_SCHEMA', 'PUBLIC') }}"
+    database: "{{ env_var('SNOWFLAKE_SOURCE_DATABASE', env_var('SNOWFLAKE_DATABASE')) }}"
     tables:
       - name: STG_ALL_SELLERS_PRODUCTS
         description: "Transformed e-commerce product data from multiple online sellers."

@@ -55,6 +55,10 @@ class Config:
     KAFKA_TOPIC               : str
 
     BRONZE_LAYER_PATH         : str
+    SILVER_LAYER_PATH         : str
+    GOLD_LAYER_PATH           : str
+    LAKEHOUSE_CATALOG         : str
+    LAKEHOUSE_WAREHOUSE       : str
     
     AZURE_STORAGE_ACCOUNT_NAME: str
     AZURE_STORAGE_ACCOUNT_KEY : str
@@ -97,29 +101,33 @@ config = Config(
     TELEGRAM_BOT_TOKEN=os.getenv("TELEGRAM_BOT_TOKEN", ""),
     TELEGRAM_CHAT_ID=os.getenv("TELEGRAM_CHAT_ID", ""),
 
-    LOGTAIL_TOKEN=required_env("LOGTAIL_TOKEN"),
-    LOGTAIL_HOST=required_env("LOGTAIL_HOST"),
+    LOGTAIL_TOKEN=os.getenv("LOGTAIL_TOKEN", ""),
+    LOGTAIL_HOST=os.getenv("LOGTAIL_HOST", ""),
 
-    KAFKA_USERNAME=required_env("KAFKA_USERNAME"),
-    KAFKA_PASSWORD=required_env("KAFKA_PASSWORD"),
-    KAFKA_CLIENT_ID=required_env("KAFKA_CLIENT_ID"),
-    KAFKA_SERVER=required_env("KAFKA_SERVER"),
+    KAFKA_USERNAME=os.getenv("KAFKA_USERNAME", ""),
+    KAFKA_PASSWORD=os.getenv("KAFKA_PASSWORD", ""),
+    KAFKA_CLIENT_ID=os.getenv("KAFKA_CLIENT_ID", "earnest-airflow"),
+    KAFKA_SERVER=os.getenv("KAFKA_SERVER", ""),
     KAFKA_SECURITY_PROTOCOL=required_env("KAFKA_SECURITY_PROTOCOL", "SASL_SSL"),
     KAFKA_SASL_MECHANISMS=required_env("KAFKA_SASL_MECHANISMS", "PLAIN"),
     KAFKA_SESSION_TIMEOUT_MS=int(required_env("KAFKA_SESSION_TIMEOUT_MS", 45000)),
     KAFKA_TOPIC=required_env("KAFKA_TOPIC", "topic_0"),
 
     BRONZE_LAYER_PATH=required_env("BRONZE_LAYER_PATH", "output/bronze"),
+    SILVER_LAYER_PATH=required_env("SILVER_LAYER_PATH", "output/silver"),
+    GOLD_LAYER_PATH=required_env("GOLD_LAYER_PATH", "output/gold"),
+    LAKEHOUSE_CATALOG=required_env("LAKEHOUSE_CATALOG", "lakehouse"),
+    LAKEHOUSE_WAREHOUSE=required_env("LAKEHOUSE_WAREHOUSE", "output/warehouse"),
 
     AZURE_STORAGE_ACCOUNT_NAME=os.getenv("AZURE_STORAGE_ACCOUNT_NAME", ""),
     AZURE_STORAGE_ACCOUNT_KEY=os.getenv("AZURE_STORAGE_ACCOUNT_KEY", ""),
 
-    SNOWFLAKE_URL=required_env("SNOWFLAKE_URL"),
-    SNOWFLAKE_USER=required_env("SNOWFLAKE_USER"),
-    SNOWFLAKE_PASSWORD=required_env("SNOWFLAKE_PASSWORD"),
-    SNOWFLAKE_DATABASE=required_env("SNOWFLAKE_DATABASE"),
-    SNOWFLAKE_SCHEMA=required_env("SNOWFLAKE_SCHEMA"),
-    SNOWFLAKE_WAREHOUSE=required_env("SNOWFLAKE_WAREHOUSE"),
+    SNOWFLAKE_URL=os.getenv("SNOWFLAKE_URL", os.getenv("SNOWFLAKE_ACCOUNT", "")),
+    SNOWFLAKE_USER=os.getenv("SNOWFLAKE_USER", ""),
+    SNOWFLAKE_PASSWORD=os.getenv("SNOWFLAKE_PASSWORD", ""),
+    SNOWFLAKE_DATABASE=os.getenv("SNOWFLAKE_DATABASE", ""),
+    SNOWFLAKE_SCHEMA=os.getenv("SNOWFLAKE_SCHEMA", ""),
+    SNOWFLAKE_WAREHOUSE=os.getenv("SNOWFLAKE_WAREHOUSE", ""),
 
     GROQ_API_KEY=os.getenv("GROQ_API_KEY", ""),
     GROQ_API_KEY_1=os.getenv("GROQ_API_KEY_1", ""),
@@ -137,7 +145,7 @@ config = Config(
     GPTOSS_20B_MAX_ATTEMPTS=int(required_env("GPTOSS_20B_MAX_ATTEMPTS", 15)),
     FAILOVER_STATE_PATH=required_env("FAILOVER_STATE_PATH", "Data/failover_state.json"),
 
-    HOLIDAY_API_KEY=required_env("HOLIDAY_API_KEY"),
+    HOLIDAY_API_KEY=os.getenv("HOLIDAY_API_KEY", ""),
     HOLIDAY_API_URL=required_env("HOLIDAY_API_URL", "https://calendarific.com/api/v2/holidays"),
     HOLIDAY_COUNTRY=required_env("HOLIDAY_COUNTRY", "EG"),
     HOLIDAY_TIMEOUT=int(required_env("HOLIDAY_TIMEOUT", 10)),

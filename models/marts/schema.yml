@@ -380,7 +380,7 @@ models:
   - name: fact_product
     description: >
       Fact table recording each scraped product pricing event.
-      Grain: one row per (product_url, date_id, time_id).
+      Grain: one row per (product_url, seller, date_id, time_id).
     columns:
       - name: fact_id
         description: "MD5 composite surrogate key"
@@ -502,7 +502,7 @@ semantic_models:
         type: time
         type_params:
           time_granularity: day
-        expr: date_id
+        expr: TO_DATE(CAST(date_id AS VARCHAR), 'YYYYMMDD')
     measures:
       - name: total_listings
         agg: count

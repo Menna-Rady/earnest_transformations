@@ -10,10 +10,13 @@ Scraping (scraping/)
 Raw Data (CSV / landing zone)
         |
         v
+Kafka (external high-throughput buffer)
+        |
+        v
 Spark Processing (spark/)
         |
         v
-Snowflake (raw -> staging tables)
+ADLS / Iceberg (Bronze and Silver) + Snowflake staging
         |
         v
 dbt Staging Layer (models/staging/)
@@ -42,7 +45,8 @@ Cleans, normalizes, and enriches raw scraped data before it lands in Snowflake.
 
 - **Input:** raw CSVs produced by the scraper
 - **Processing:** cleaning (`transformers/cleaner.py`), feature extraction (`transformers/feature_extractor.py`), date/time parsing (`transformers/date_time_extractor.py`), and LLM-assisted imputation (`transformers/llm_imputer.py`) for missing values
-- **Output:** Parquet files (see `spark/Data/parquet_cache/`) and registry maps (brand/category/subcategory) used for consistent dimension keys
+- **Output:** Bronze/Silver Iceberg tables in ADLS, Snowflake staging rows,
+  and registry maps used for consistent dimension keys
 - **Agents:** Pluggable LLM agent layer (`agents/`) with failover support (`FailoverManager.py`) across providers (Groq, Llama, GPT-OSS variants)
 
 ### 3. Snowflake (Data Warehouse)
@@ -65,6 +69,13 @@ A separate frontend repository is planned to consume this data, likely via the d
 
 - _TODO: link the website repo here once the integration contract is defined_
 - _TODO: document whether the website queries Snowflake directly, via dbt Semantic Layer (MetricFlow), or via a dedicated API service_
+
+### 6. Airflow (`airflow/`)
+
+Airflow schedules the daily/manual workflow, validates contracts, publishes the
+fixture stream, runs bounded Spark processing, executes dbt quality gates, and
+checks serving connections. Kafka, ADLS, FastAPI, DuckDB, and Superset are
+external connection boundaries rather than services provisioned here.
 
 ## Data Lineage
 

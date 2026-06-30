@@ -28,7 +28,7 @@ class StreamingPipeline(BasePipeline):
         self.schema = schema 
         self.skip_llm = skip_llm
 
-    def run(self) -> None:
+    def run(self, idle_timeout_minutes: int = 10) -> None:
         """
         Run the streaming pipeline.
         Reads data from Kafka, parses it, and writes it to the Bronze and Silver layers.
@@ -41,7 +41,7 @@ class StreamingPipeline(BasePipeline):
         bronze_query = self._write_bronze(parsed_df)
         silver_query = self._write_silver(parsed_df)
 
-        self._monitor_streams(idle_timeout_minutes=10)
+        self._monitor_streams(idle_timeout_minutes=idle_timeout_minutes)
 
     def _monitor_streams(self, idle_timeout_minutes: int) -> None:
         """
@@ -87,19 +87,26 @@ class StreamingPipeline(BasePipeline):
         """
         Reads raw data from Kafka topic using credentials from the environment config.
         """
-        jaas_config = f'org.apache.kafka.common.security.plain.PlainLoginModule required username="{config.KAFKA_USERNAME}" password="{config.KAFKA_PASSWORD}";'
-        return (
+        if not config.KAFKA_SERVER:
+            raise ValueError("KAFKA_SERVER must be configured for streaming mode")
+
+        reader = (
             self.spark.readStream
             .format("kafka")
             .option("kafka.bootstrap.servers", config.KAFKA_SERVER)
             .option("subscribe", config.KAFKA_TOPIC)
-            .option("kafka.security.protocol", config.KAFKA_SECURITY_PROTOCOL)
-            .option("kafka.sasl.mechanism", config.KAFKA_SASL_MECHANISMS)
-            .option("kafka.sasl.jaas.config", jaas_config)
             .option("startingOffsets", "earliest")
             .option("kafka.max.poll.interval.ms", "1800000")
-            .load()
         )
+        if config.KAFKA_USERNAME and config.KAFKA_PASSWORD:
+            jaas_config = f'org.apache.kafka.common.security.plain.PlainLoginModule required username="{config.KAFKA_USERNAME}" password="{config.KAFKA_PASSWORD}";'
+            reader = (
+                reader
+                .option("kafka.security.protocol", config.KAFKA_SECURITY_PROTOCOL)
+                .option("kafka.sasl.mechanism", config.KAFKA_SASL_MECHANISMS)
+                .option("kafka.sasl.jaas.config", jaas_config)
+            )
+        return reader.load()
 
     def _parse(self, raw_df) -> SparkDataFrame:
         """
@@ -117,16 +124,30 @@ class StreamingPipeline(BasePipeline):
 
     def _write_bronze(self, df) -> StreamingQuery:
         """
-        Writes raw data to the Bronze layer every 3 minutes.
+        Writes raw data to the Bronze Iceberg table every 3 minutes.
         """
+        def write_batch(batch_df, _batch_id):
+            if not batch_df.isEmpty():
+                self._append_iceberg(batch_df, "bronze", "products")
+
         return (
             df.writeStream
-            .format("delta")
+            .foreachBatch(write_batch)
             .outputMode("append")
             .trigger(processingTime='3 minutes') 
             .option("checkpointLocation", f"{config.BRONZE_LAYER_PATH}/_checkpoint")
-            .start(config.BRONZE_LAYER_PATH)
+            .start()
         )
+
+    def _append_iceberg(self, df: SparkDataFrame, namespace: str, table: str) -> None:
+        """Create an Iceberg table on first use, then append later micro-batches."""
+        catalog = config.LAKEHOUSE_CATALOG
+        identifier = f"{catalog}.{namespace}.{table}"
+        self.spark.sql(f"CREATE NAMESPACE IF NOT EXISTS {catalog}.{namespace}")
+        if self.spark.catalog.tableExists(identifier):
+            df.writeTo(identifier).append()
+        else:
+            df.writeTo(identifier).using("iceberg").create()
 
     def _write_silver(self, df) -> StreamingQuery:
         """
@@ -162,6 +183,7 @@ class StreamingPipeline(BasePipeline):
 
                     logger.info(f"Applying transformations for {seller}...")
                     clean_df = self._transform(seller, seller_df, skip_llm=self.skip_llm)
+                    self._append_iceberg(clean_df, "silver", "products")
                     
                     table_name = "STG_ALL_SELLERS_PRODUCTS"
                     logger.info(f"Writing {seller_rows} rows to Snowflake table: {table_name}...")

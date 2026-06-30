@@ -10,4 +10,4 @@ SELECT DISTINCT
     season, is_winter, is_spring, is_summer, is_autumn
 FROM 
     {{ source('raw_data', 'STG_ALL_SELLERS_PRODUCTS') }}
-QUALIFY ROW_NUMBER() OVER(PARTITION BY time_id ORDER BY time_id) = 1
+QUALIFY ROW_NUMBER() OVER(PARTITION BY date_id ORDER BY date_id) = 1

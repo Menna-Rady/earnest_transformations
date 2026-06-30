@@ -41,6 +41,8 @@ class BatchPipeline(BasePipeline):
         Returns:
             int: The number of sellers successfully processed.
         """
+        processed = 0
+        failures = []
         for seller, file_path in seller_files.items():
             try:
                 logger.info(f"Reading CSV for {seller} from {file_path}")
@@ -51,6 +53,14 @@ class BatchPipeline(BasePipeline):
                 table_name = "STG_ALL_SELLERS_PRODUCTS"
 
                 self.write_to_snowflake(clean_df, table_name, mode="append")
+                processed += 1
 
             except Exception as e:
                 logger.error(f"Failed to process batch for {seller}: {e}", exc_info=True)
+                failures.append(seller)
+
+        if failures:
+            raise RuntimeError(
+                "Batch failed for seller(s): " + ", ".join(sorted(failures))
+            )
+        return processed

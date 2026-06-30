@@ -66,6 +66,13 @@ The semantic layer utilizes dbt MetricFlow to define standardized metrics and di
 - Follow the established naming conventions for files and fields.
 - Update the semantic models and metrics when adding new measures to the fact table.
 
+## Airflow orchestration
+
+The project includes a Dockerized Airflow development environment and a daily
+pipeline for CSV validation, Kafka publication, Spark processing, Snowflake/dbt
+modeling, and downstream health checks. Start with [the setup guide](docs/setup.md)
+and review [the orchestration contract](docs/orchestration.md).
+
 
 
 

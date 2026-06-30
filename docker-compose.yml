@@ -1,0 +1,73 @@
+x-airflow-common: &airflow-common
+  build:
+    context: .
+    dockerfile: airflow/Dockerfile
+  env_file:
+    - .env
+  environment: &airflow-environment
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__CORE__DAGS_FOLDER: /opt/earnest/airflow/dags
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "true"
+    EARNEST_PROJECT_ROOT: /opt/earnest
+    PYTHONPATH: /opt/earnest:/opt/earnest/spark
+  volumes:
+    - ./:/opt/earnest
+    - airflow-logs:/opt/airflow/logs
+  depends_on:
+    postgres:
+      condition: service_healthy
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - airflow-db:/var/lib/postgresql/data
+
+  airflow-init:
+    <<: *airflow-common
+    command:
+      - bash
+      - -c
+      - >-
+        airflow db migrate &&
+        (airflow users create
+        --username "$${AIRFLOW_ADMIN_USERNAME:-airflow}"
+        --password "$${AIRFLOW_ADMIN_PASSWORD:-airflow}"
+        --firstname Earnest --lastname Admin
+        --role Admin --email admin@earnest.local || true)
+    restart: "no"
+
+  airflow-webserver:
+    <<: *airflow-common
+    command: webserver
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+    healthcheck:
+      test: ["CMD-SHELL", "airflow jobs check --job-type SchedulerJob --hostname $${HOSTNAME}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  airflow-db:
+  airflow-logs:

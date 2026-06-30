@@ -22,7 +22,15 @@ from transformers.constants import (
 
 logger = get_logger(__name__)
 
-_failover_manager = FailoverManager()
+_failover_manager = None
+
+
+def _get_failover_manager() -> FailoverManager:
+    """Create external AI clients only when an LLM request is actually needed."""
+    global _failover_manager
+    if _failover_manager is None:
+        _failover_manager = FailoverManager()
+    return _failover_manager
 
 
 def _compact_cache_dir(spark: SparkSession, cache_path: str):
@@ -100,7 +108,7 @@ def _call_agent(spark: SparkSession, batch: list, col_name: str, dataset_name: s
             f"Inputs:\n{json.dumps(batch, ensure_ascii=False)}"
         )
         
-        resp = _failover_manager.predict_missing_value(prompt)
+        resp = _get_failover_manager().predict_missing_value(prompt)
         if not resp: return
         
         parsed = json.loads(resp.strip().strip("`").removeprefix("json").strip())
@@ -154,6 +162,19 @@ def fill_na_with_llm(config: dict = None) -> Callable[[SparkDataFrame], SparkDat
 
        
         df = _add_classification_signature(_normalize_product_names(df))
+
+        # Tests and scheduled runs can disable external AI calls deterministically.
+        if config.get("skip_llm", False):
+            for col_name in _TARGETS:
+                if col_name in df.columns:
+                    fallback = DEFAULT_FALLBACK_VALUES.get(col_name, "unknown")
+                    df = df.withColumn(
+                        col_name,
+                        F.when(_missing_cond(col_name), F.lit(fallback)).otherwise(
+                            F.col(col_name)
+                        ),
+                    )
+            return df.drop("normalized_name", "classification_key")
 
         for col_name in _TARGETS:
             if col_name not in df.columns: continue

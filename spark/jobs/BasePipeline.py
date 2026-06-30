@@ -62,7 +62,8 @@ class BasePipeline(ABC):
         pass
 
     def _transform(self, seller: str, df: SparkDataFrame, skip_llm: bool = False) -> SparkDataFrame:
-        cfg = SELLER_CONFIGS.get(seller, {})
+        # Copy the shared settings so one run cannot modify another seller's config.
+        cfg = SELLER_CONFIGS.get(seller, {}).copy()
         cfg["seller_name"] = seller
         if skip_llm:
             cfg["skip_llm"] = True
@@ -110,6 +111,14 @@ class BasePipeline(ABC):
     def write_to_snowflake(self, df: SparkDataFrame, table_name: str, mode: str = "append"):
         logger.info(f"Writing data to Snowflake table: {table_name}")
         try:
+            missing = [
+                name for name in (
+                    "SNOWFLAKE_URL", "SNOWFLAKE_USER", "SNOWFLAKE_PASSWORD",
+                    "SNOWFLAKE_DATABASE", "SNOWFLAKE_SCHEMA", "SNOWFLAKE_WAREHOUSE",
+                ) if not getattr(config, name)
+            ]
+            if missing:
+                raise ValueError("Missing Snowflake settings: " + ", ".join(missing))
             import snowflake.connector
             from snowflake.connector.pandas_tools import write_pandas
             from pyspark.sql.functions import col, year, when, current_timestamp, current_date
