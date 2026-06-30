@@ -1,6 +1,6 @@
 ﻿# Contributing
 
-Thanks for contributing to Earnest Transformations! This guide covers how to set up your environment and the workflow expected for changes to this repository.
+Thanks for contributing to Earnest! This guide covers how to set up your environment and the workflow expected for changes to this repository.
 
 ## Prerequisites
 
