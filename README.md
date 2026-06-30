@@ -67,3 +67,5 @@ The semantic layer utilizes dbt MetricFlow to define standardized metrics and di
 - Update the semantic models and metrics when adding new measures to the fact table.
 
 
+
+
