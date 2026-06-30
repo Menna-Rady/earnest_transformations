@@ -1,7 +1,6 @@
-name: 'depi_dbt'
+﻿name: 'earnest_transformations'
 version: '1.0.0'
-
-profile: 'depi_dbt'
+profile: 'earnest_transformations'
 
 model-paths: ["models"]
 analysis-paths: ["analyses"]
@@ -15,6 +14,8 @@ clean-targets:
   - "dbt_packages"
 
 models:
-  depi_dbt:
-    example:
+  earnest_transformations:
+    staging:
       +materialized: view
+    marts:
+      +materialized: table
