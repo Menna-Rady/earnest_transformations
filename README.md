@@ -272,5 +272,3 @@ The semantic layer utilizes dbt MetricFlow to define standardized metrics and di
 - Document new columns and models clearly.
 - Follow the established naming conventions for files and fields.
 - Update the semantic models and metrics when adding new measures to the fact table.
-#   e a r n e s t _ t r a n s f o r m a t i o n s  
- 
