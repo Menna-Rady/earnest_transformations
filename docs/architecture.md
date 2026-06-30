@@ -3,6 +3,8 @@
 This document describes the end-to-end architecture of the Earnest data platform: from raw web scraping to the dbt-powered semantic layer.
 
 ## High-Level Data Flow
+
+
 ## Components
 
 ### 1. Scraping (`scraping/`)
@@ -59,4 +61,5 @@ This only covers lineage from dbt sources downward. Lineage from the scraper thr
 - [ ] What orchestrator (if any) coordinates scraper → Spark → dbt?
 - [ ] How are credentials/secrets managed across the three domains?
 - [ ] What does the website/API layer actually consume?
+
 
