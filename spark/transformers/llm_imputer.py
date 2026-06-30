@@ -34,17 +34,20 @@ def _get_failover_manager() -> FailoverManager:
 
 
 def _compact_cache_dir(spark: SparkSession, cache_path: str):
-    if not os.path.exists(cache_path): return
+    if not os.path.exists(cache_path):
+        return
     try:
         df = spark.read.parquet(cache_path)
-        if df.isEmpty(): return
+        if df.isEmpty():
+            return
         temp_path = cache_path + "_temp"
         
         num_partitions = max(1, df.count() // 100000) 
         
         df.dropDuplicates(["input_key"]).repartition(num_partitions).write.mode("overwrite").parquet(temp_path)
         spark.read.parquet(temp_path).write.mode("overwrite").parquet(cache_path)
-        if os.path.exists(temp_path): shutil.rmtree(temp_path)
+        if os.path.exists(temp_path):
+            shutil.rmtree(temp_path)
     except Exception as e:
         logger.error(f"Cache Compaction Error: {e}")
 
@@ -88,7 +91,8 @@ def _process_ai_fallback(spark: SparkSession, needs_ai_df: SparkDataFrame, col_n
     
     batch = []
     for row in keys_and_names:
-        if not row["cache_key"]: continue
+        if not row["cache_key"]:
+            continue
         batch.append({"input_key": row["cache_key"], "product_name": row["product_name"]})
         
         if len(batch) >= batch_size:
@@ -109,7 +113,8 @@ def _call_agent(spark: SparkSession, batch: list, col_name: str, dataset_name: s
         )
         
         resp = _get_failover_manager().predict_missing_value(prompt)
-        if not resp: return
+        if not resp:
+            return
         
         parsed = json.loads(resp.strip().strip("`").removeprefix("json").strip())
         raw_preds = parsed if isinstance(parsed, list) else (list(parsed.values())[0] if isinstance(parsed, dict) else [parsed])
@@ -158,7 +163,8 @@ def fill_na_with_llm(config: dict = None) -> Callable[[SparkDataFrame], SparkDat
 
     def transform(df: SparkDataFrame) -> SparkDataFrame:
         spark = df.sparkSession
-        if "product_name" not in df.columns: return df
+        if "product_name" not in df.columns:
+            return df
 
        
         df = _add_classification_signature(_normalize_product_names(df))
@@ -177,9 +183,11 @@ def fill_na_with_llm(config: dict = None) -> Callable[[SparkDataFrame], SparkDat
             return df.drop("normalized_name", "classification_key")
 
         for col_name in _TARGETS:
-            if col_name not in df.columns: continue
+            if col_name not in df.columns:
+                continue
             missing_cond = _missing_cond(col_name)
-            if df.filter(missing_cond).isEmpty(): continue
+            if df.filter(missing_cond).isEmpty():
+                continue
 
             fallback_value = DEFAULT_FALLBACK_VALUES.get(col_name, "unknown")
             logger.info(f"[{dataset_name}] | {col_name} | Processing via AI Agent Pipeline...")

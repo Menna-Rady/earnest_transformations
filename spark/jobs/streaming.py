@@ -38,8 +38,8 @@ class StreamingPipeline(BasePipeline):
         raw_df = self._read_kafka()
         parsed_df = self._parse(raw_df)
 
-        bronze_query = self._write_bronze(parsed_df)
-        silver_query = self._write_silver(parsed_df)
+        self._write_bronze(parsed_df)
+        self._write_silver(parsed_df)
 
         self._monitor_streams(idle_timeout_minutes=idle_timeout_minutes)
 

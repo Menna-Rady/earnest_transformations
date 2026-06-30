@@ -152,7 +152,32 @@ def load_data() -> DataBundle:
     return DataBundle(products=df, min_date=min_date, max_date=max_date)
 
 
-DATA = load_data()
+DASHBOARD_COLUMNS = [
+    "fact_id", "product_sk", "seller_sk", "product_current_price",
+    "product_old_price", "product_discount_amount",
+    "product_discount_percentage", "product_has_discount",
+    "product_availability", "product_count", "product_weight",
+    "product_measuring_unit", "product_name", "product_brand",
+    "product_category", "product_subcategory", "product_url",
+    "product_has_image_url", "product_image_url", "product_has_ram",
+    "product_has_storage", "product_seller", "product_is_talabat_seller",
+    "date", "day", "month", "year", "quarter", "month_name", "day_name",
+    "season", "is_weekend", "hour_24", "hour_12", "minute", "part_of_day",
+    "product_is_talabat_source",
+]
+
+
+def load_dashboard_data() -> DataBundle:
+    """Load live data, but keep imports and the UI testable without credentials."""
+    try:
+        return load_data()
+    except Exception as error:
+        print(f"Dashboard data is unavailable: {error}")
+        empty = pd.DataFrame(columns=DASHBOARD_COLUMNS)
+        return DataBundle(products=empty, min_date=None, max_date=None)
+
+
+DATA = load_dashboard_data()
 
 
 def dropdown_options(column: str, fallback: str, limit: int = 120) -> list[dict[str, str]]:
@@ -536,7 +561,6 @@ def seller_source_split(df: pd.DataFrame, limit: int = 6) -> pd.DataFrame:
 def overview_page(df: pd.DataFrame, theme: str = "dark") -> html.Div:
     metrics = summary_metrics(df)
     cats = by_category(df).head(12)
-    sellers = by_seller(df)
     brands = top_brands(df, 5)
     price_dist = price_distribution(df)
     source_split = seller_source_split(df)

@@ -24,6 +24,11 @@ pnpm-debug.log*
 # Build
 dist/
 build/
+coverage/
+.coverage
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
 # OS
 .DS_Store
@@ -36,6 +41,7 @@ target/
 dbt_packages/
 logs/
 dbt_internal_packages/
+.user.yml
 
 # Runtime data and orchestration state
 airflow/logs/
@@ -48,3 +54,19 @@ spark/Data/registry_maps/
 spark/Data/llm_cache/
 spark/Data/prompt_cache/
 *.zip
+*.rar
+*.tmp
+*.bak
+
+# Scraper-generated data (curated samples remain versioned)
+scraping/**/data/
+scraping/**/output/
+scraping/**/outputs/
+scraping/**/cache/
+scraping/**/*.csv
+!scraping/scrapers/**/sample_data.csv
+scraping/**/*.json
+!scraping/package.json
+scraping/**/*.html
+scraping/**/playwright-report/
+scraping/**/test-results/

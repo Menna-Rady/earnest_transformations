@@ -1,6 +1,14 @@
-version: 2
+﻿version: 2
 
 models:
+  - name: metricflow_time_spine
+    description: "Daily time spine used by MetricFlow for time-series metrics."
+    time_spine:
+      standard_granularity_column: date_day
+    columns:
+      - name: date_day
+        granularity: day
+
   - name: dim_date
     description: >
       Date dimension table providing calendar attributes for each unique
@@ -23,68 +31,77 @@ models:
         tests:
           - not_null
           - accepted_range:
-              min_value: 1
-              max_value: 31
+              arguments:
+                min_value: 1
+                max_value: 31
 
       - name: year
         description: "4-digit year"
         tests:
           - not_null
           - accepted_range:
-              min_value: 2024
-              max_value: 2030
+              arguments:
+                min_value: 2024
+                max_value: 2030
 
       - name: month
         description: "Month number 1-12"
         tests:
           - not_null
           - accepted_range:
-              min_value: 1
-              max_value: 12
+              arguments:
+                min_value: 1
+                max_value: 12
 
       - name: quarter
         description: "Quarter number 1-4"
         tests:
           - not_null
           - accepted_range:
-              min_value: 1
-              max_value: 4
+              arguments:
+                min_value: 1
+                max_value: 4
 
       - name: month_name
         description: "Full English month name"
         tests:
           - not_null
           - accepted_values:
-              values: ['January', 'February', 'March', 'April', 'May', 'June',
-                       'July', 'August', 'September', 'October', 'November', 'December']
+              arguments:
+                values: ['January', 'February', 'March', 'April', 'May', 'June',
+                         'July', 'August', 'September', 'October', 'November', 'December']
 
       - name: day_name
         description: "Full English day-of-week name"
         tests:
           - not_null
           - accepted_values:
-              values: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+              arguments:
+                values: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
       - name: day_of_week
         tests:
           - not_null
           - accepted_range:
-              min_value: 0
-              max_value: 6
+              arguments:
+                min_value: 0
+                max_value: 6
 
       - name: day_of_year
         tests:
           - not_null
           - accepted_range:
-              min_value: 1
-              max_value: 366
+              arguments:
+                min_value: 1
+                max_value: 366
 
       - name: week_of_year
         tests:
           - not_null
           - accepted_range:
-              min_value: 1
-              max_value: 53
+              arguments:
+                min_value: 1
+                max_value: 53
 
       - name: is_weekend
         tests:
@@ -150,7 +167,8 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ['Winter', 'Spring', 'Summer', 'Autumn']
+              arguments:
+                values: ['Winter', 'Spring', 'Summer', 'Autumn']
 
       - name: is_winter
         tests:
@@ -287,39 +305,44 @@ models:
         tests:
           - not_null
           - accepted_range:
-              min_value: 0
-              max_value: 12
+              arguments:
+                min_value: 0
+                max_value: 12
 
       - name: hour_24
         description: "Hour in 24h clock"
         tests:
           - not_null
           - accepted_range:
-              min_value: 0
-              max_value: 23
+              arguments:
+                min_value: 0
+                max_value: 23
 
       - name: minute
         description: "Minute 0-59"
         tests:
           - not_null
           - accepted_range:
-              min_value: 0
-              max_value: 59
+              arguments:
+                min_value: 0
+                max_value: 59
 
       - name: second
         description: "Second 0-59"
         tests:
           - not_null
           - accepted_range:
-              min_value: 0
-              max_value: 59
+              arguments:
+                min_value: 0
+                max_value: 59
 
       - name: meridiem
         description: "AM or PM"
         tests:
           - not_null
           - accepted_values:
-              values: ['AM', 'PM']
+              arguments:
+                values: ['AM', 'PM']
 
       - name: is_am
         tests:
@@ -340,7 +363,8 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ['morning', 'afternoon', 'evening', 'night']
+              arguments:
+                values: ['morning', 'afternoon', 'evening', 'night']
 
       - name: is_morning
         tests:
@@ -389,36 +413,40 @@ models:
           - not_null
 
       - name: product_sk
-        description: "FK → dim_product"
+        description: "FK â†’ dim_product"
         tests:
           - not_null
           - relationships:
-              to: ref('dim_product')
-              field: product_sk
+              arguments:
+                to: ref('dim_product')
+                field: product_sk
 
       - name: seller_sk
-        description: "FK → dim_seller"
+        description: "FK â†’ dim_seller"
         tests:
           - not_null
           - relationships:
-              to: ref('dim_seller')
-              field: seller_sk
+              arguments:
+                to: ref('dim_seller')
+                field: seller_sk
 
       - name: date_id
-        description: "FK → dim_date"
+        description: "FK â†’ dim_date"
         tests:
           - not_null
           - relationships:
-              to: ref('dim_date')
-              field: date_id
+              arguments:
+                to: ref('dim_date')
+                field: date_id
 
       - name: time_id
-        description: "FK → dim_time"
+        description: "FK â†’ dim_time"
         tests:
           - not_null
           - relationships:
-              to: ref('dim_time')
-              field: time_id
+              arguments:
+                to: ref('dim_time')
+                field: time_id
 
       - name: product_current_price
         description: "Current listed price (EGP)"
@@ -443,8 +471,9 @@ models:
           - not_null
           - positive_value
           - accepted_range:
-              min_value: 0
-              max_value: 100
+              arguments:
+                min_value: 0
+                max_value: 100
 
       - name: product_has_discount
         description: "1 = discounted, 0 = full price"

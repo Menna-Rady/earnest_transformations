@@ -19,7 +19,7 @@ REGISTERED_SELLERS: Final[list[str]] = [
     "carrefour", "chicco", "cleaned", "compumarts", "cstore",
     "decathlon", "dokkantech", "elghazawy", "ennap", "eva", "fresh",
     "gosport", "gourmet", "hyperone", "intersport", "jumia", "kimostore",
-    "mahmoud_elfar", "mazaya", "meercato", "metro", "noon", "pipeline_final",
+    "mahmoud_elfar", "mazaya", "meercato", "metro", "noon",
     "raya", "samir_and_aly", "seoudi", "sigma", "talabat",
     "the_beauty_secrets", "toptoys", "tradeline"
 ]
@@ -53,7 +53,6 @@ SELLER_FILES = {
     "meercato"           : os.path.join(_DATA_DIR, "meercato_products_clean.csv"),
     "metro"              : os.path.join(_DATA_DIR, "metro.csv"),
     "noon"               : os.path.join(_DATA_DIR, "noon.csv"),
-    "pipeline_final"     : os.path.join(_DATA_DIR, "pipeline_final_products.csv"),
     "raya"               : os.path.join(_DATA_DIR, "raya.csv"),
     "samir_and_aly"      : os.path.join(_DATA_DIR, "samir_and_aly_products_clean.csv"),
     "seoudi"             : os.path.join(_DATA_DIR, "seoudi.csv"),

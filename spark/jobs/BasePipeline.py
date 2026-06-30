@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 
 from pyspark.sql import SparkSession
-from pyspark.sql import functions as F
 from pyspark.sql import DataFrame as SparkDataFrame
 
 from config.dotenv_config import config

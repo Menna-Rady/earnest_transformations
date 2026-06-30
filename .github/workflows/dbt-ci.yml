@@ -17,6 +17,7 @@ on:
       - "dashboard/**"
       - "docker-compose.yml"
       - "requirements-dev.txt"
+      - "pyproject.toml"
       - "dbt_project.yml"
   push:
     branches: [main]
@@ -30,9 +31,11 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install lightweight test dependencies
-        run: pip install -r requirements-dev.txt
+        run: pip install -r requirements-dev.txt -r dashboard/requirements.txt
       - name: Compile Python entry points
         run: python -m compileall -q orchestration airflow/dags spark
+      - name: Lint maintained Python code
+        run: ruff check orchestration airflow/dags python_tests spark dashboard
       - name: Run unit and contract tests
         run: pytest -q python_tests
       - name: Validate Docker Compose

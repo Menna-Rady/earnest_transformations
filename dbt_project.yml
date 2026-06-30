@@ -15,7 +15,5 @@ clean-targets:
 
 models:
   earnest_transformations:
-    staging:
-      +materialized: view
     marts:
       +materialized: table

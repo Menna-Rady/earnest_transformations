@@ -10,9 +10,7 @@ from pyspark.sql.utils import AnalysisException
 from logs.logger import get_logger
 
 from errors.AgentRateLimitError import AgentRateLimitError
-from errors.ConfigurationError  import ConfigurationError
 from errors.ComputationError    import ComputationError
-from errors.DataQualityError    import DataQualityError
 from errors.PipelineBaseError   import PipelineBaseError
 from errors.SchemaMismatchError import SchemaMismatchError
 
